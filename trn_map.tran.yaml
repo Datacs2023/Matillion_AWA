@@ -1,0 +1,115 @@
+type: "transformation"
+version: "1.0"
+pipeline:
+  components:
+    EMPLOYEE:
+      type: "table-input"
+      parameters:
+        componentName: "EMPLOYEE"
+        database: "[Environment Default]"
+        schema: "[Environment Default]"
+        targetTable: "EMPLOYEE"
+        columnNames:
+        - "EMPLOYEEID"
+        - "EMPLOYEENAME"
+        - "GENDER"
+        - "STATECODE"
+        - "SALARY"
+        timeOffset:
+    Map Values:
+      type: "map-values"
+      sources:
+      - "EMPLOYEE"
+      parameters:
+        componentName: "Map Values"
+        valueMap:
+        - - "SALARY"
+          - "Is"
+          - "Less than or equal to"
+          - "10000"
+          - "Data Analyst Trainee"
+        - - "SALARY"
+          - "Is"
+          - "Less than or equal to"
+          - "30000"
+          - "Data Analyst"
+        - - "SALARY"
+          - "Is"
+          - "Less than or equal to"
+          - "50000"
+          - "Business Consultant"
+        - - "SALARY"
+          - "Is"
+          - "Less than or equal to"
+          - "80000"
+          - "Senior Consultant"
+        columnName: "Salary_Bucket"
+        other: "Lead Consultant"
+    Aggregate:
+      type: "aggregate"
+      sources:
+      - "Map Values"
+      parameters:
+        componentName: "Aggregate"
+        groupings:
+        - "Salary_Bucket"
+        aggregations:
+        - - "EMPLOYEEID"
+          - "Count Distinct"
+        groupingType: "Group By"
+    Rename:
+      type: "rename"
+      sources:
+      - "Aggregate"
+      parameters:
+        componentName: "Rename"
+        columnMapping:
+        - - "Salary_Bucket"
+          - "Salary_Bucket"
+        - - "count_distinct_EMPLOYEEID"
+          - "Total_Emp"
+        includeInputColumns: "No"
+    Rewrite Table:
+      type: "rewrite-table"
+      sources:
+      - "Rename"
+      parameters:
+        componentName: "Rewrite Table"
+        warehouse: "[Environment Default]"
+        database: "[Environment Default]"
+        schema: "[Environment Default]"
+        targetTable: "Emp_Sal_Bucket"
+        orderBy:
+        - - "Total_Emp"
+          - "DESCENDING"
+      postProcessing:
+        updateOutputMessage:
+        updateScalarVariables:
+        updateGridVariables:
+design:
+  components:
+    EMPLOYEE:
+      position:
+        x: 560
+        "y": 270
+      tempMetlId:
+    Map Values:
+      position:
+        x: 720
+        "y": 270
+      tempMetlId:
+    Aggregate:
+      position:
+        x: 880
+        "y": 270
+      tempMetlId:
+    Rename:
+      position:
+        x: 1040
+        "y": 270
+      tempMetlId:
+    Rewrite Table:
+      position:
+        x: 1200
+        "y": 270
+      tempMetlId:

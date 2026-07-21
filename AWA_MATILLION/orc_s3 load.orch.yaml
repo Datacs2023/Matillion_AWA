@@ -1,0 +1,111 @@
+type: "orchestration"
+version: "1.0"
+pipeline:
+  components:
+    Start:
+      type: "start"
+      transitions:
+        unconditional:
+        - "SQL Script"
+      parameters:
+        componentName: "Start"
+      postProcessing:
+        updateOutputMessage:
+        updateScalarVariables:
+        updateGridVariables:
+    SQL Script:
+      type: "sql-executor"
+      transitions:
+        success:
+        - "S3 Load"
+      parameters:
+        componentName: "SQL Script"
+        scriptLocation: "Component"
+        declareSqlVariables: "Include selected"
+        variablesToInclude:
+        enableVariableResolution: "No"
+        sqlScript: "CREATE TABLE TXN_NEW IF NOT EXISTS (\r\ntrans_id INT,\t\r\naccount_id\t\
+          INT,\r\nDate\tDATE,\r\nType\tVARCHAR(30),\r\noperation\tVARCHAR(40),\r\n\
+          amount\tINT,\r\nbalance\tFLOAT,\r\nPurpose\tVARCHAR(40),\r\nbank\tVARCHAR(45),\r\
+          \naccount INT);"
+      postProcessing:
+        updateOutputMessage:
+        updateScalarVariables:
+        updateGridVariables:
+    S3 Load:
+      type: "s3-load"
+      parameters:
+        componentName: "S3 Load"
+        stage: "[Custom]"
+        authentication: "Credentials"
+        s3ObjectPrefix: "s3://anuragawa/matillion/transaction_awa/${filename}"
+        pattern: ".*"
+        encryption: "None"
+        warehouse: "[Environment Default]"
+        database: "[Environment Default]"
+        schema: "[Environment Default]"
+        targetTable: "TXN_NEW"
+        loadColumns:
+        - "TRANS_ID"
+        - "ACCOUNT_ID"
+        - "DATE"
+        - "TYPE"
+        - "OPERATION"
+        - "AMOUNT"
+        - "BALANCE"
+        - "PURPOSE"
+        - "BANK"
+        - "ACCOUNT"
+        format: "[Custom]"
+        fileType: "CSV"
+        compression: "AUTO"
+        recordDelimiter:
+        fieldDelimiter: ","
+        skipHeader: "1"
+        skipBlankLines: "False"
+        dateFormat:
+        timeFormat:
+        timestampFormat:
+        escape:
+        escapeUnenclosedField:
+        trimSpace: "False"
+        fieldOptionallyEnclosed:
+        nullIf:
+        errorOnColumnCountMismatch: "False"
+        emptyFieldAsNull: "True"
+        replaceInvalidCharacters: "False"
+        encodingType:
+        onError: "Abort Statement"
+        sizeLimitB:
+        purgeFiles: "False"
+        truncateColumns: "False"
+        forceLoad: "False"
+      postProcessing:
+        updateOutputMessage:
+        updateScalarVariables:
+        updateGridVariables:
+  variables:
+    filename:
+      metadata:
+        type: "TEXT"
+        description: "this variable will help usto pass the required file"
+        scope: "SHARED"
+        visibility: "PUBLIC"
+      defaultValue: "trnx_16.csv"
+design:
+  components:
+    Start:
+      position:
+        x: -500
+        "y": -50
+      tempMetlId:
+    SQL Script:
+      position:
+        x: -330
+        "y": -50
+      tempMetlId:
+    S3 Load:
+      position:
+        x: -180
+        "y": -50
+      tempMetlId:

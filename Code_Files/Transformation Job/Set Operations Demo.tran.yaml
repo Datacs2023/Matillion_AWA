@@ -1,0 +1,135 @@
+type: "transformation"
+version: "1.0"
+pipeline:
+  metadata:
+    origin: "METL"
+  components:
+    Except:
+      type: "except"
+      sources:
+      - "BOOKS2"
+      - "BOOKS1"
+      parameters:
+        componentName: "Except"
+        castTypes: "Yes"
+        primaryTable: "BOOKS1"
+    Intersect:
+      type: "intersect"
+      sources:
+      - "BOOKS2"
+      - "BOOKS1"
+      parameters:
+        componentName: "Intersect"
+        castTypes: "Yes"
+    Unite:
+      type: "unite"
+      sources:
+      - "BOOKS2"
+      - "BOOKS1"
+      parameters:
+        componentName: "Unite"
+        method: "Overlapping Columns"
+        castTypes: "Yes"
+        addSourceComponentColumn: "No"
+        removeDuplicates: "Yes"
+    Rewrite Table TABLE_A_MINUS_B:
+      type: "rewrite-table"
+      sources:
+      - "Except"
+      parameters:
+        componentName: "Rewrite Table TABLE_A_MINUS_B"
+        warehouse: "[Environment Default]"
+        database: "[Environment Default]"
+        schema: "SRC"
+        targetTable: "TABLE_A_MINUS_B"
+        orderBy:
+    Rewrite Table TABLE_A_UNION_B:
+      type: "rewrite-table"
+      sources:
+      - "Unite"
+      parameters:
+        componentName: "Rewrite Table TABLE_A_UNION_B"
+        warehouse: "[Environment Default]"
+        database: "[Environment Default]"
+        schema: "SRC"
+        targetTable: "TABLE_A_UNION_B"
+        orderBy:
+    Rewrite Table TABLE_A_INT_B:
+      type: "rewrite-table"
+      sources:
+      - "Intersect"
+      parameters:
+        componentName: "Rewrite Table TABLE_A_INT_B"
+        warehouse: "[Environment Default]"
+        database: "[Environment Default]"
+        schema: "SRC"
+        targetTable: "TABLE_A_INT_B"
+        orderBy:
+    BOOKS2:
+      type: "table-input"
+      parameters:
+        componentName: "BOOKS2"
+        database: "[Environment Default]"
+        schema: "[Environment Default]"
+        targetTable: "BOOKS2"
+        columnNames:
+        - "ID"
+        - "NAME"
+        - "CATEGORY"
+        - "PRICE"
+        timeOffset: ""
+    BOOKS1:
+      type: "table-input"
+      parameters:
+        componentName: "BOOKS1"
+        database: "[Environment Default]"
+        schema: "[Environment Default]"
+        targetTable: "BOOKS1"
+        columnNames:
+        - "ID"
+        - "NAME"
+        - "CATEGORY"
+        - "PRICE"
+        timeOffset: ""
+design:
+  components:
+    Except:
+      position:
+        x: 560
+        "y": 0
+      tempMetlId: 9467
+    Intersect:
+      position:
+        x: 560
+        "y": 128
+      tempMetlId: 9469
+    Unite:
+      position:
+        x: 560
+        "y": 256
+      tempMetlId: 9471
+    Rewrite Table TABLE_A_MINUS_B:
+      position:
+        x: 720
+        "y": 0
+      tempMetlId: 9565
+    Rewrite Table TABLE_A_UNION_B:
+      position:
+        x: 720
+        "y": 256
+      tempMetlId: 9568
+    Rewrite Table TABLE_A_INT_B:
+      position:
+        x: 720
+        "y": 128
+      tempMetlId: 9570
+    BOOKS2:
+      position:
+        x: 208
+        "y": 208
+      tempMetlId: 9414
+    BOOKS1:
+      position:
+        x: 208
+        "y": 80
+      tempMetlId: 9410

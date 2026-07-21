@@ -1,0 +1,85 @@
+type: "transformation"
+version: "1.0"
+pipeline:
+  components:
+    DEMOGRAPHIC:
+      type: "table-input"
+      parameters:
+        componentName: "DEMOGRAPHIC"
+        database: "[Environment Default]"
+        schema: "[Environment Default]"
+        targetTable: "DEMOGRAPHIC"
+        columnNames:
+        - "CustomerID"
+        - "LastName"
+        - "FirstName"
+        - "BirthDate"
+        - "Gender"
+        - "ParticipantType"
+        - "RegionID"
+        - "MaritalStatus"
+        timeOffset:
+    Calculator:
+      type: "calculator"
+      sources:
+      - "DEMOGRAPHIC"
+      parameters:
+        componentName: "Calculator"
+        includeInputColumns: "No"
+        calculations:
+        - - "\"FirstName\""
+          - "FirstName"
+        - - "\"LastName\""
+          - "LastName"
+        - - "CONCAT(\"FirstName\",' ',\"LastName\")"
+          - "Full_Name"
+        - - "YEAR(\"BirthDate\")"
+          - "Year_Birth_Date"
+        - - "MONTH(\"BirthDate\")"
+          - "Month_Birth_Date"
+        - - "DAY(\"BirthDate\")"
+          - "Day_Birth_Date"
+    Aggregate:
+      type: "aggregate"
+      sources:
+      - "Calculator"
+      parameters:
+        componentName: "Aggregate"
+        groupings:
+        - "Month_Birth_Date"
+        aggregations:
+        - - "Full_Name"
+          - "Count Distinct"
+        groupingType: "Group By"
+    Rename:
+      type: "rename"
+      sources:
+      - "Aggregate"
+      parameters:
+        componentName: "Rename"
+        columnMapping:
+        - - "count_distinct_Full_Name"
+          - "Total_Customer"
+        includeInputColumns: "Yes"
+design:
+  components:
+    DEMOGRAPHIC:
+      position:
+        x: -780
+        "y": -60
+      tempMetlId:
+    Calculator:
+      position:
+        x: -650
+        "y": -60
+      tempMetlId:
+    Aggregate:
+      position:
+        x: -490
+        "y": -60
+      tempMetlId:
+    Rename:
+      position:
+        x: -330
+        "y": -60
+      tempMetlId:

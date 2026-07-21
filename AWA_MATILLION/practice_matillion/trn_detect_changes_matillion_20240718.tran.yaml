@@ -1,0 +1,132 @@
+type: "transformation"
+version: "1.0"
+pipeline:
+  metadata:
+    origin: "METL"
+  components:
+    BOOKS2:
+      type: "table-input"
+      parameters:
+        componentName: "BOOKS2"
+        database: "DEMO_DATABASE"
+        schema: "DEMO_SCHEMA"
+        targetTable: "BOOKS2"
+        columnNames:
+        - "ID"
+        - "NAME"
+        - "CATEGORY"
+        - "PRICE"
+        timeOffset: ""
+    BOOKS1:
+      type: "table-input"
+      parameters:
+        componentName: "BOOKS1"
+        database: "DEMO_DATABASE"
+        schema: "DEMO_SCHEMA"
+        targetTable: "BOOKS1"
+        columnNames:
+        - "ID"
+        - "NAME"
+        - "CATEGORY"
+        - "PRICE"
+        timeOffset: ""
+    Detect Changes:
+      type: "detect-changes"
+      sources:
+      - "BOOKS2"
+      - "BOOKS1"
+      parameters:
+        componentName: "Detect Changes"
+        masterTable: "BOOKS1"
+        matchKeys:
+        - "ID"
+        compareColumns:
+        - "ID"
+        - "NAME"
+        - "CATEGORY"
+        - "PRICE"
+        outputColumnMapping:
+        - - "master_ID"
+          - "master_ID"
+        - - "compare_ID"
+          - "compare_ID"
+        - - "master_NAME"
+          - "Name"
+        - - "master_CATEGORY"
+          - "Category"
+        - - "master_PRICE"
+          - "Master_Price"
+        - - "compare_PRICE"
+          - "Compare_Price"
+        indicatorColumn: "Indicator"
+    Filter:
+      type: "filter"
+      sources:
+      - "Detect Changes"
+      parameters:
+        componentName: "Filter"
+        mode: "Basic"
+        filterConditions:
+        - - "Indicator"
+          - "Is"
+          - "Equal to"
+          - "N"
+        combineCondition: "And"
+    Rewrite Table:
+      type: "rewrite-table"
+      sources:
+      - "Filter"
+      parameters:
+        componentName: "Rewrite Table"
+        warehouse: "[Environment Default]"
+        database: "[Environment Default]"
+        schema: "[Environment Default]"
+        targetTable: "Detect_Change"
+        orderBy:
+      postProcessing:
+        updateOutputMessage:
+        updateScalarVariables:
+        updateGridVariables:
+    Distinct:
+      type: "distinct"
+      sources:
+      - "BOOKS2"
+      parameters:
+        componentName: "Distinct"
+        columns:
+        - "ID"
+        - "NAME"
+        - "CATEGORY"
+        - "PRICE"
+design:
+  components:
+    BOOKS2:
+      position:
+        x: 368
+        "y": 224
+      tempMetlId: 8061
+    BOOKS1:
+      position:
+        x: 368
+        "y": 94
+      tempMetlId: 8091
+    Detect Changes:
+      position:
+        x: 594
+        "y": 165
+      tempMetlId: 8118
+    Filter:
+      position:
+        x: 754
+        "y": 165
+      tempMetlId: 8500
+    Rewrite Table:
+      position:
+        x: 914
+        "y": 165
+      tempMetlId: 8501
+    Distinct:
+      position:
+        x: 528
+        "y": 304
+      tempMetlId:
