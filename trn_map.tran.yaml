@@ -45,22 +45,10 @@ pipeline:
           - "Senior Consultant"
         columnName: "Salary_Bucket"
         other: "Lead Consultant"
-    Aggregate:
-      type: "aggregate"
-      sources:
-      - "Map Values"
-      parameters:
-        componentName: "Aggregate"
-        groupings:
-        - "Salary_Bucket"
-        aggregations:
-        - - "EMPLOYEEID"
-          - "Count Distinct"
-        groupingType: "Group By"
     Rename:
       type: "rename"
       sources:
-      - "Aggregate"
+      - "Salary Bucket"
       parameters:
         componentName: "Rename"
         columnMapping:
@@ -86,6 +74,42 @@ pipeline:
         updateOutputMessage:
         updateScalarVariables:
         updateGridVariables:
+    Calculator:
+      type: "calculator"
+      sources:
+      - "Salary Bucket"
+      parameters:
+        componentName: "Calculator"
+        includeInputColumns: "No"
+        calculations:
+        - - "\"Salary_Bucket\""
+          - "Salary_Bucket"
+        - - "\"count_distinct_EMPLOYEEID\""
+          - "Total_Emp"
+    Total Sal By Gender:
+      type: "aggregate"
+      sources:
+      - "EMPLOYEE"
+      parameters:
+        componentName: "Total Sal By Gender"
+        groupings:
+        - "GENDER"
+        aggregations:
+        - - "SALARY"
+          - "Sum"
+        groupingType: "Group By"
+    Salary Bucket:
+      type: "aggregate"
+      sources:
+      - "Map Values"
+      parameters:
+        componentName: "Salary Bucket"
+        groupings:
+        - "Salary_Bucket"
+        aggregations:
+        - - "EMPLOYEEID"
+          - "Count Distinct"
+        groupingType: "Group By"
 design:
   components:
     EMPLOYEE:
@@ -98,11 +122,6 @@ design:
         x: 720
         "y": 270
       tempMetlId:
-    Aggregate:
-      position:
-        x: 880
-        "y": 270
-      tempMetlId:
     Rename:
       position:
         x: 1040
@@ -111,5 +130,20 @@ design:
     Rewrite Table:
       position:
         x: 1200
+        "y": 270
+      tempMetlId:
+    Calculator:
+      position:
+        x: 1040
+        "y": 150
+      tempMetlId:
+    Total Sal By Gender:
+      position:
+        x: 620
+        "y": 150
+      tempMetlId:
+    Salary Bucket:
+      position:
+        x: 880
         "y": 270
       tempMetlId:
