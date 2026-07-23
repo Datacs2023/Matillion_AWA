@@ -1,0 +1,73 @@
+type: "transformation"
+version: "1.0"
+pipeline:
+  components:
+    CUST_JSON:
+      type: "table-input"
+      parameters:
+        componentName: "CUST_JSON"
+        database: "[Environment Default]"
+        schema: "[Environment Default]"
+        targetTable: "CUST_JSON"
+        columnNames:
+        - "DATA_VALUE"
+        timeOffset:
+    Extract Nested Data:
+      type: "extract-nested-data-sf"
+      sources:
+      - "CUST_JSON"
+      parameters:
+        componentName: "Extract Nested Data"
+        includeInputColumns: "No"
+        columns:
+        - name: "data"
+          datatype: "VARIANT"
+          size: "0"
+          decimalPlaces: "0"
+          columnName: "DATA_VALUE"
+          aliasName: "data"
+          isArray: "true"
+          include: "false"
+          childElements:
+          - name: "data-element"
+            datatype: "VARIANT"
+            size: "0"
+            decimalPlaces: "0"
+            columnName: "DATA_VALUE"
+            aliasName: "data-element"
+            isArray: "false"
+            include: "false"
+            childElements:
+            - name: "customer_rid"
+              datatype: "NUMBER"
+              size: "0"
+              decimalPlaces: "0"
+              columnName: "DATA_VALUE"
+              aliasName: "customer_rid"
+              isArray: "false"
+              include: "true"
+            - name: "account_name"
+              datatype: "VARCHAR"
+              size: "0"
+              decimalPlaces: "0"
+              columnName: "DATA_VALUE"
+              aliasName: "account_name"
+              isArray: "false"
+              include: "true"
+        outerJoin: "No"
+        inputAlias: "i"
+        arrayPrefix: "f"
+        castingMethod: "Fail on invalid data"
+        caseColumnAliasNames: "No"
+design:
+  components:
+    CUST_JSON:
+      position:
+        x: -350
+        "y": 20
+      tempMetlId:
+    Extract Nested Data:
+      position:
+        x: -200
+        "y": 20
+      tempMetlId:
